@@ -152,29 +152,25 @@ def chat():
     data = request.json
     messages = data.get("messages", [])
 
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        return jsonify({"error": "GOOGLE_API_KEY environment variable not set."}), 500
+        return jsonify({"error": "GROQ_API_KEY environment variable not set."}), 500
 
     try:
-        contents = []
-        for msg in messages:
-            role = "model" if msg["role"] == "assistant" else "user"
-            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
-
         payload = {
-            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-            "contents": contents,
-            "generationConfig": {"maxOutputTokens": 3000},
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+            "max_tokens": 3000,
         }
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-        resp = requests.post(url, json=payload, timeout=60)
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        resp = requests.post(url, json=payload, headers=headers, timeout=60)
         if not resp.ok:
             err = resp.json()
             msg = err.get("error", {}).get("message", resp.text)
             return jsonify({"error": msg}), 500
-        text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+        text = resp.json()["choices"][0]["message"]["content"]
         return jsonify({"response": text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
