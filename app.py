@@ -168,9 +168,10 @@ def chat():
             "generationConfig": {"maxOutputTokens": 3000},
         }
 
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         resp = requests.post(url, json=payload, timeout=60)
-        resp.raise_for_status()
+        if not resp.ok:
+            return jsonify({"error": resp.json()}), 500
         text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
         return jsonify({"response": text})
     except Exception as e:
