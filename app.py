@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, jsonify, render_template
-import anthropic
+import google.generativeai as genai
 
 app = Flask(__name__)
 
@@ -152,22 +152,26 @@ def chat():
     data = request.json
     messages = data.get("messages", [])
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
-        return jsonify({"error": "ANTHROPIC_API_KEY environment variable not set."}), 500
-
-    client = anthropic.Anthropic(api_key=api_key)
+        return jsonify({"error": "GOOGLE_API_KEY environment variable not set."}), 500
 
     try:
-        response = client.messages.create(
-            model="claude-opus-4-6",
-            max_tokens=3000,
-            system=SYSTEM_PROMPT,
-            messages=messages,
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=SYSTEM_PROMPT,
         )
-        return jsonify({"response": response.content[0].text})
-    except anthropic.AuthenticationError:
-        return jsonify({"error": "Invalid API key. Please check your ANTHROPIC_API_KEY."}), 401
+
+        # Convert message history (all but last) to Gemini format
+        history = []
+        for msg in messages[:-1]:
+            role = "model" if msg["role"] == "assistant" else "user"
+            history.append({"role": role, "parts": [msg["content"]]})
+
+        chat = model.start_chat(history=history)
+        response = chat.send_message(messages[-1]["content"])
+        return jsonify({"response": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
