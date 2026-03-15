@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, jsonify, render_template
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 app = Flask(__name__)
 
@@ -157,20 +158,21 @@ def chat():
         return jsonify({"error": "GOOGLE_API_KEY environment variable not set."}), 500
 
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=SYSTEM_PROMPT,
-        )
+        client = genai.Client(api_key=api_key)
 
-        # Convert message history (all but last) to Gemini format
-        history = []
-        for msg in messages[:-1]:
+        contents = []
+        for msg in messages:
             role = "model" if msg["role"] == "assistant" else "user"
-            history.append({"role": role, "parts": [msg["content"]]})
+            contents.append(types.Content(role=role, parts=[types.Part(text=msg["content"])]))
 
-        chat = model.start_chat(history=history)
-        response = chat.send_message(messages[-1]["content"])
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                max_output_tokens=3000,
+            ),
+        )
         return jsonify({"response": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
