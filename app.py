@@ -171,7 +171,9 @@ def chat():
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         resp = requests.post(url, json=payload, timeout=60)
         if not resp.ok:
-            return jsonify({"error": resp.json()}), 500
+            err = resp.json()
+            msg = err.get("error", {}).get("message", resp.text)
+            return jsonify({"error": msg}), 500
         text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
         return jsonify({"response": text})
     except Exception as e:
