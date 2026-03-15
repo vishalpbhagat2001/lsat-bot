@@ -163,7 +163,7 @@ def chat():
             contents.append({"role": role, "parts": [{"text": msg["content"]}]})
 
         payload = {
-            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
             "contents": contents,
             "generationConfig": {"maxOutputTokens": 3000},
         }
