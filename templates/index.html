@@ -9,30 +9,38 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:       #0f1f3d;
-      --navy-mid:   #1a3160;
-      --navy-light: #2a4a8a;
-      --accent:     #c8102e;
-      --accent-hov: #a50d25;
-      --green:      #1a7a50;
-      --bg:         #f2f4f9;
-      --surface:    #ffffff;
-      --border:     #dde2ed;
-      --text:       #1a1a2e;
-      --muted:      #6b7280;
-      --sidebar-w:  272px;
+      --navy:      #0f1f3d;
+      --navy-mid:  #1a3160;
+      --accent:    #c8102e;
+      --bg:        #f2f4f9;
+      --surface:   #ffffff;
+      --border:    #dde2ed;
+      --text:      #1a1a2e;
+      --muted:     #6b7280;
+      --sidebar-w: 272px;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      height: 100vh;
+      height: 100dvh;
       display: flex;
       overflow: hidden;
     }
 
-    /* ── Sidebar ───────────────────────────────────────── */
+    /* ── Sidebar overlay (mobile) ─────────────────────── */
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 99;
+    }
+
+    #sidebar-overlay.open { display: block; }
+
+    /* ── Sidebar ──────────────────────────────────────── */
     #sidebar {
       width: var(--sidebar-w);
       background: var(--navy);
@@ -40,276 +48,129 @@
       flex-direction: column;
       flex-shrink: 0;
       overflow-y: auto;
+      transition: transform 0.25s ease;
+      z-index: 100;
     }
 
     .sb-head {
       padding: 20px 18px 14px;
       border-bottom: 1px solid rgba(255,255,255,0.09);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .sb-head h1 { color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-    .sb-head p  { color: rgba(255,255,255,0.45); font-size: 11.5px; margin-top: 3px; }
+    .sb-head-row { display: flex; align-items: center; justify-content: space-between; }
+    .sb-head h1  { color: #fff; font-size: 17px; font-weight: 700; }
+    .sb-head p   { color: rgba(255,255,255,0.45); font-size: 11.5px; }
+
+    #close-sidebar {
+      display: none;
+      background: rgba(255,255,255,0.1);
+      border: none; color: #fff; font-size: 18px;
+      width: 30px; height: 30px; border-radius: 6px;
+      cursor: pointer; align-items: center; justify-content: center;
+    }
 
     .disclaimer {
       background: rgba(200,16,46,0.18);
       border: 1px solid rgba(200,16,46,0.35);
       color: rgba(255,255,255,0.75);
-      font-size: 10.5px;
-      line-height: 1.5;
-      padding: 7px 10px;
-      border-radius: 6px;
-      margin-top: 10px;
+      font-size: 10.5px; line-height: 1.5;
+      padding: 7px 10px; border-radius: 6px; margin-top: 8px;
     }
 
-    /* Stats bar */
+    /* Stats */
     #stats-bar {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
       gap: 1px;
       background: rgba(255,255,255,0.08);
       border-top: 1px solid rgba(255,255,255,0.08);
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    .stat {
-      padding: 10px 6px;
-      text-align: center;
-    }
-
-    .stat-val {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1;
-    }
-
-    .stat-label {
-      color: rgba(255,255,255,0.4);
-      font-size: 9.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 3px;
-    }
-
+    .stat { padding: 10px 6px; text-align: center; }
+    .stat-val { color: #fff; font-size: 18px; font-weight: 700; line-height: 1; }
+    .stat-label { color: rgba(255,255,255,0.4); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
     .stat-val.green { color: #4ade80; }
     .stat-val.red   { color: #f87171; }
 
-    /* Difficulty */
-    .sb-section { padding: 12px 14px 6px; }
-    .sb-label {
-      color: rgba(255,255,255,0.35);
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-      padding: 0 2px;
-    }
-
-    .diff-row {
-      display: flex;
-      gap: 5px;
-    }
-
-    .diff-btn {
-      flex: 1;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.6);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 6px 4px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s;
-    }
-
-    .diff-btn:hover { background: rgba(255,255,255,0.14); }
-    .diff-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-    /* Timer */
-    #timer-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px 10px;
-    }
-
-    #timer-display {
-      color: #fff;
-      font-size: 20px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 1px;
-      flex: 1;
-    }
-
-    .timer-btn {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.8);
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .timer-btn:hover { background: rgba(255,255,255,0.2); }
-
-    /* Divider */
-    .sb-divider {
-      border: none;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      margin: 4px 14px;
-    }
-
-    /* Quick buttons */
-    .q-btn {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.8);
-      font-size: 12.5px;
-      text-align: left;
-      padding: 8px 10px;
-      border-radius: 7px;
-      cursor: pointer;
-      margin-bottom: 4px;
-      transition: background 0.15s;
-    }
-
-    .q-btn:hover { background: rgba(255,255,255,0.11); border-color: rgba(255,255,255,0.18); }
-    .q-btn .icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
-
-    /* Mark correct/wrong buttons */
-    #mark-row {
-      display: none;
-      gap: 8px;
-      padding: 0 14px 10px;
-    }
-
+    /* Mark buttons */
+    #mark-row { display: none; gap: 8px; padding: 0 14px 10px; }
     #mark-row.visible { display: flex; }
-
-    .mark-btn {
-      flex: 1;
-      padding: 8px;
-      border-radius: 7px;
-      border: none;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-
+    .mark-btn { flex: 1; padding: 8px; border-radius: 7px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
     .mark-btn.correct { background: #16a34a; color: #fff; }
     .mark-btn.wrong   { background: var(--accent); color: #fff; }
     .mark-btn:hover   { opacity: 0.85; }
 
-    /* Sidebar footer */
-    .sb-foot {
-      margin-top: auto;
-      padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
+    /* Timer */
+    .sb-section { padding: 12px 14px 6px; }
+    .sb-label { color: rgba(255,255,255,0.35); font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; padding: 0 2px; }
 
+    #timer-row { display: flex; align-items: center; gap: 8px; padding: 8px 14px 10px; }
+    #timer-display { color: #fff; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 1px; flex: 1; }
+    .timer-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); font-size: 11px; padding: 4px 10px; border-radius: 5px; cursor: pointer; }
+    .timer-btn:hover { background: rgba(255,255,255,0.2); }
+
+    /* Difficulty */
+    .diff-row { display: flex; gap: 5px; }
+    .diff-btn { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; padding: 6px 4px; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .diff-btn:hover  { background: rgba(255,255,255,0.14); }
+    .diff-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .sb-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 4px 14px; }
+
+    /* Quick buttons */
+    .q-btn { display: flex; align-items: center; gap: 9px; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); font-size: 12.5px; text-align: left; padding: 8px 10px; border-radius: 7px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; }
+    .q-btn:hover { background: rgba(255,255,255,0.11); }
+    .q-btn .icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+    .sb-foot { margin-top: auto; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); }
     .sb-foot p { color: rgba(255,255,255,0.3); font-size: 10px; line-height: 1.5; }
 
-    /* ── Main ──────────────────────────────────────────── */
-    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    /* ── Main ─────────────────────────────────────────── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
     #topbar {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 11px 22px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0; flex-wrap: wrap;
+    }
+
+    #menu-btn {
+      display: none;
+      background: var(--navy); border: none; color: #fff;
+      width: 34px; height: 34px; border-radius: 7px;
+      font-size: 17px; cursor: pointer; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
 
     #topbar h2 { font-size: 15px; font-weight: 600; }
 
-    .pill {
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 99px;
-      background: #eef0f8;
-      color: var(--navy-mid);
-      border: 1px solid var(--border);
-    }
+    .pill { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: #eef0f8; color: var(--navy-mid); border: 1px solid var(--border); }
 
-    #section-tabs {
-      display: flex;
-      gap: 4px;
-      margin-left: auto;
-    }
+    #section-tabs { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
 
-    .tab {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .tab:hover { border-color: var(--navy-mid); color: var(--navy); }
+    .tab { font-size: 12px; font-weight: 500; padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .tab:hover  { border-color: var(--navy-mid); color: var(--navy); }
     .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 
     /* Chat */
-    #chat-window {
-      flex: 1;
-      overflow-y: auto;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
+    #chat-window { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; }
 
-    .message { display: flex; gap: 10px; max-width: 820px; width: 100%; }
+    .message { display: flex; gap: 10px; max-width: 780px; width: 100%; }
     .message.user { align-self: flex-end; flex-direction: row-reverse; }
     .message.bot  { align-self: flex-start; }
 
-    .avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
     .message.user .avatar { background: var(--navy); }
     .message.bot  .avatar { background: var(--accent); }
 
-    .bubble {
-      padding: 11px 15px;
-      border-radius: 13px;
-      font-size: 14px;
-      line-height: 1.7;
-      max-width: calc(100% - 46px);
-    }
-
-    .message.user .bubble {
-      background: var(--navy);
-      color: #fff;
-      border-bottom-right-radius: 3px;
-    }
-
-    .message.bot .bubble {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 3px;
-    }
+    .bubble { padding: 10px 14px; border-radius: 13px; font-size: 14px; line-height: 1.7; max-width: calc(100% - 44px); }
+    .message.user .bubble { background: var(--navy); color: #fff; border-bottom-right-radius: 3px; }
+    .message.bot  .bubble { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
 
     /* Markdown */
     .bubble h1, .bubble h2 { margin: 14px 0 6px; color: var(--navy); font-size: 15px; }
@@ -319,156 +180,112 @@
     .bubble li { margin: 3px 0; }
     .bubble strong { color: var(--navy); }
     .bubble em { color: var(--muted); }
-    .bubble code {
-      background: #eef0f8; border-radius: 4px;
-      padding: 1px 5px; font-family: "SF Mono", "Fira Code", monospace; font-size: 12px;
-    }
-    .bubble pre {
-      background: #eef0f8; border-radius: 8px;
-      padding: 12px; overflow-x: auto; margin: 8px 0;
-      font-size: 12.5px; font-family: "SF Mono", "Fira Code", monospace; line-height: 1.5;
-    }
+    .bubble code { background: #eef0f8; border-radius: 4px; padding: 1px 5px; font-family: "SF Mono","Fira Code",monospace; font-size: 12px; }
+    .bubble pre { background: #eef0f8; border-radius: 8px; padding: 12px; overflow-x: auto; margin: 8px 0; font-size: 12px; font-family: "SF Mono","Fira Code",monospace; line-height: 1.5; }
     .bubble pre code { background: none; padding: 0; }
-    .bubble blockquote {
-      border-left: 3px solid var(--accent); margin: 8px 0;
-      padding: 4px 12px; color: var(--muted); font-style: italic;
-    }
-    .bubble table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 8px 0; }
-    .bubble th, .bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+    .bubble blockquote { border-left: 3px solid var(--accent); margin: 8px 0; padding: 4px 12px; color: var(--muted); font-style: italic; }
+    .bubble table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 8px 0; display: block; overflow-x: auto; }
+    .bubble th, .bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; white-space: nowrap; }
     .bubble th { background: #eef0f8; font-weight: 600; }
     .bubble hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 
-    /* Typing indicator */
+    /* Typing */
     .typing { display: flex; align-items: center; gap: 5px; padding: 12px 15px; }
-    .typing span {
-      width: 7px; height: 7px; background: var(--muted);
-      border-radius: 50%; animation: bounce 1.2s infinite ease-in-out;
-    }
+    .typing span { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out; }
     .typing span:nth-child(2) { animation-delay: 0.2s; }
     .typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
-      40%           { transform: scale(1);   opacity: 1; }
-    }
+    @keyframes bounce { 0%,80%,100%{transform:scale(0.7);opacity:0.5} 40%{transform:scale(1);opacity:1} }
 
     /* Input */
-    #input-area {
-      padding: 14px 22px 18px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    #input-row {
-      display: flex; gap: 8px; align-items: flex-end; max-width: 820px;
-    }
-
-    #user-input {
-      flex: 1; resize: none;
-      border: 1.5px solid var(--border); border-radius: 11px;
-      padding: 10px 13px; font-size: 14px; font-family: inherit;
-      color: var(--text); background: var(--bg); outline: none;
-      transition: border-color 0.15s; line-height: 1.5;
-      max-height: 140px; overflow-y: auto;
-    }
-
+    #input-area { padding: 12px 16px 16px; background: var(--surface); border-top: 1px solid var(--border); flex-shrink: 0; }
+    #input-row { display: flex; gap: 8px; align-items: flex-end; }
+    #user-input { flex: 1; resize: none; border: 1.5px solid var(--border); border-radius: 11px; padding: 10px 13px; font-size: 15px; font-family: inherit; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s; line-height: 1.5; max-height: 120px; overflow-y: auto; }
     #user-input:focus { border-color: var(--navy-mid); }
-
-    #send-btn {
-      background: var(--navy); color: #fff;
-      border: none; border-radius: 9px;
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
-      transition: background 0.15s; font-size: 17px;
-    }
-
-    #send-btn:hover   { background: var(--navy-mid); }
+    #send-btn { background: var(--navy); color: #fff; border: none; border-radius: 9px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.15s; font-size: 17px; }
+    #send-btn:hover    { background: var(--navy-mid); }
     #send-btn:disabled { background: #ccc; cursor: not-allowed; }
-
-    #hint { color: var(--muted); font-size: 11px; margin-top: 6px; }
+    #hint { color: var(--muted); font-size: 11px; margin-top: 5px; }
 
     /* Welcome */
-    #welcome {
-      max-width: 560px; margin: auto;
-      text-align: center; color: var(--muted); padding: 40px 20px;
-    }
-
-    #welcome .logo { font-size: 50px; margin-bottom: 14px; }
-    #welcome h2 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
-    #welcome p  { font-size: 13.5px; line-height: 1.65; margin-bottom: 20px; }
-
-    .note {
-      background: #fff8e1; border: 1px solid #f5c842;
-      color: #7a5500; font-size: 12px; line-height: 1.5;
-      padding: 10px 14px; border-radius: 8px; text-align: left; margin-bottom: 20px;
-    }
-
+    #welcome { max-width: 540px; margin: auto; text-align: center; color: var(--muted); padding: 30px 16px; }
+    #welcome .logo { font-size: 46px; margin-bottom: 12px; }
+    #welcome h2 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    #welcome p  { font-size: 13.5px; line-height: 1.65; margin-bottom: 16px; }
+    .note { background: #fff8e1; border: 1px solid #f5c842; color: #7a5500; font-size: 12px; line-height: 1.5; padding: 10px 14px; border-radius: 8px; text-align: left; margin-bottom: 16px; }
     .chips { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
-
-    .chip {
-      background: var(--surface); border: 1.5px solid var(--border);
-      color: var(--text); font-size: 12px;
-      padding: 6px 13px; border-radius: 99px; cursor: pointer;
-      transition: all 0.15s;
-    }
-
+    .chip { background: var(--surface); border: 1.5px solid var(--border); color: var(--text); font-size: 12px; padding: 6px 13px; border-radius: 99px; cursor: pointer; transition: all 0.15s; }
     .chip:hover { border-color: var(--navy); background: var(--navy); color: #fff; }
 
-    /* Scrollbar */
+    /* Scrollbars */
     #chat-window::-webkit-scrollbar { width: 5px; }
     #chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
     #sidebar::-webkit-scrollbar { width: 4px; }
     #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+
+    /* ── Mobile breakpoint ────────────────────────────── */
+    @media (max-width: 700px) {
+      #sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+      }
+
+      #sidebar.open { transform: translateX(0); }
+
+      #menu-btn       { display: flex; }
+      #close-sidebar  { display: flex; }
+
+      #section-tabs .tab:not(.active) { display: none; }
+      #section-tabs .tab.active { font-size: 11px; padding: 4px 8px; }
+
+      .pill { display: none; }
+
+      #hint { display: none; }
+
+      #chat-window { padding: 12px 10px; }
+
+      .bubble { font-size: 13.5px; }
+
+      #input-area { padding: 10px 10px 14px; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ── Sidebar ──────────────────────────────────────────── -->
+<!-- Mobile overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ── Sidebar ─────────────────────────────────────────── -->
 <aside id="sidebar">
   <div class="sb-head">
-    <h1>⚖️ LSAT Study Bot</h1>
+    <div class="sb-head-row">
+      <h1>⚖️ LSAT Study Bot</h1>
+      <button id="close-sidebar" onclick="closeSidebar()">✕</button>
+    </div>
     <p>AI-powered LSAT tutor · All sections</p>
-    <div class="disclaimer">
-      ⚠️ Questions are AI-generated and modeled on real LSAT style — not official LSAC questions. For official prep, use LSAC PrepTests.
-    </div>
+    <div class="disclaimer">⚠️ AI-generated questions modeled on real LSAT style — not official LSAC questions.</div>
   </div>
 
-  <!-- Stats -->
   <div id="stats-bar">
-    <div class="stat">
-      <div class="stat-val" id="stat-total">0</div>
-      <div class="stat-label">Attempted</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val green" id="stat-correct">0</div>
-      <div class="stat-label">Correct</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val" id="stat-pct">—</div>
-      <div class="stat-label">Accuracy</div>
-    </div>
+    <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-label">Attempted</div></div>
+    <div class="stat"><div class="stat-val green" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat"><div class="stat-val" id="stat-pct">—</div><div class="stat-label">Accuracy</div></div>
   </div>
 
-  <!-- Mark correct/wrong -->
   <div id="mark-row">
     <button class="mark-btn correct" onclick="markAnswer(true)">✓ Got it right</button>
     <button class="mark-btn wrong"   onclick="markAnswer(false)">✗ Got it wrong</button>
   </div>
 
-  <!-- Timer -->
-  <div class="sb-section">
-    <div class="sb-label">Stopwatch</div>
-  </div>
+  <div class="sb-section"><div class="sb-label">Stopwatch</div></div>
   <div id="timer-row">
     <div id="timer-display">0:00</div>
-    <button class="timer-btn" onclick="toggleTimer()">Start</button>
+    <button class="timer-btn" id="timer-toggle-btn" onclick="toggleTimer()">Start</button>
     <button class="timer-btn" onclick="resetTimer()">Reset</button>
   </div>
 
   <hr class="sb-divider"/>
 
-  <!-- Difficulty -->
   <div class="sb-section">
     <div class="sb-label">Question Difficulty</div>
     <div class="diff-row">
@@ -481,98 +298,59 @@
 
   <hr class="sb-divider"/>
 
-  <!-- LR quick actions -->
   <div class="sb-section">
     <div class="sb-label">Logical Reasoning</div>
-    <button class="q-btn" onclick="quickSend('Give me a Logical Reasoning practice question at my current difficulty level. Present only the stimulus, question stem, and answer choices — wait for my answer before explaining.')">
-      <span class="icon">🔍</span> Practice Question
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me the Assumption question type: how to identify it, the method, and the top traps.')">
-      <span class="icon">💡</span> Assumption Questions
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me Strengthen and Weaken questions: method, what makes an answer correct, and the top traps.')">
-      <span class="icon">⚖️</span> Strengthen / Weaken
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me how to identify and attack Flaw questions on the LSAT. Give me the most common flaw types.')">
-      <span class="icon">⚠️</span> Flaw Questions
-    </button>
-    <button class="q-btn" onclick="quickSend('Explain Inference / Must Be True questions on the LSAT: method and traps.')">
-      <span class="icon">🧠</span> Inference Questions
-    </button>
-    <button class="q-btn" onclick="quickSend('Explain Parallel Reasoning questions: how to identify the argument structure and match it.')">
-      <span class="icon">🔀</span> Parallel Reasoning
-    </button>
+    <button class="q-btn" onclick="qs('Give me a Logical Reasoning practice question at my current difficulty level. Present only the stimulus, question stem, and answer choices — wait for my answer before explaining.')"><span class="icon">🔍</span> Practice Question</button>
+    <button class="q-btn" onclick="qs('Teach me the Assumption question type: how to identify it, the method, and the top traps.')"><span class="icon">💡</span> Assumption Questions</button>
+    <button class="q-btn" onclick="qs('Teach me Strengthen and Weaken questions: method, what makes an answer correct, and the top traps.')"><span class="icon">⚖️</span> Strengthen / Weaken</button>
+    <button class="q-btn" onclick="qs('Teach me how to identify and attack Flaw questions on the LSAT. Give me the most common flaw types.')"><span class="icon">⚠️</span> Flaw Questions</button>
+    <button class="q-btn" onclick="qs('Explain Inference / Must Be True questions on the LSAT: method and traps.')"><span class="icon">🧠</span> Inference Questions</button>
+    <button class="q-btn" onclick="qs('Explain Parallel Reasoning questions: how to identify the argument structure and match it.')"><span class="icon">🔀</span> Parallel Reasoning</button>
   </div>
 
   <hr class="sb-divider"/>
 
-  <!-- Logic Games -->
   <div class="sb-section">
     <div class="sb-label">Analytical Reasoning</div>
-    <button class="q-btn" onclick="quickSend('Generate a complete Logic Game at my current difficulty level: setup, all rules, an ASCII diagram template, and 5–6 questions. Present the game and wait for me to work through it.')">
-      <span class="icon">🎯</span> Full Logic Game
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me how to set up and solve basic sequencing (linear) logic games step by step.')">
-      <span class="icon">📋</span> Sequencing Games
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me how to set up and solve grouping (In/Out) logic games step by step.')">
-      <span class="icon">🗂️</span> Grouping (In/Out) Games
-    </button>
-    <button class="q-btn" onclick="quickSend('Explain how to handle conditional rules in logic games: if-then, contrapositive, chains.')">
-      <span class="icon">🔗</span> Conditional Rules
-    </button>
+    <button class="q-btn" onclick="qs('Generate a complete Logic Game at my current difficulty level: setup, all rules, an ASCII diagram template, and 5–6 questions. Present the game and wait for me to work through it.')"><span class="icon">🎯</span> Full Logic Game</button>
+    <button class="q-btn" onclick="qs('Teach me how to set up and solve basic sequencing (linear) logic games step by step.')"><span class="icon">📋</span> Sequencing Games</button>
+    <button class="q-btn" onclick="qs('Teach me how to set up and solve grouping (In/Out) logic games step by step.')"><span class="icon">🗂️</span> Grouping (In/Out) Games</button>
+    <button class="q-btn" onclick="qs('Explain how to handle conditional rules in logic games: if-then, contrapositive, chains.')"><span class="icon">🔗</span> Conditional Rules</button>
   </div>
 
   <hr class="sb-divider"/>
 
-  <!-- RC -->
   <div class="sb-section">
     <div class="sb-label">Reading Comprehension</div>
-    <button class="q-btn" onclick="quickSend('Give me an LSAT-style Reading Comprehension passage (~450 words) with 5 questions. Present the passage and questions, then wait for my answers.')">
-      <span class="icon">📖</span> Full RC Passage
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me how to identify the main point and author\'s attitude in LSAT RC passages.')">
-      <span class="icon">🎓</span> Main Point Strategy
-    </button>
-    <button class="q-btn" onclick="quickSend('Teach me how to approach Inference questions in Reading Comprehension: method and traps.')">
-      <span class="icon">🔎</span> Inference in RC
-    </button>
+    <button class="q-btn" onclick="qs('Give me an LSAT-style Reading Comprehension passage (~450 words) with 5 questions. Present the passage and questions, then wait for my answers.')"><span class="icon">📖</span> Full RC Passage</button>
+    <button class="q-btn" onclick="qs('Teach me how to identify the main point and author\'s attitude in LSAT RC passages.')"><span class="icon">🎓</span> Main Point Strategy</button>
+    <button class="q-btn" onclick="qs('Teach me how to approach Inference questions in Reading Comprehension: method and traps.')"><span class="icon">🔎</span> Inference in RC</button>
   </div>
 
   <hr class="sb-divider"/>
 
-  <!-- Strategy -->
   <div class="sb-section">
     <div class="sb-label">Strategy & Planning</div>
-    <button class="q-btn" onclick="quickSend('Explain necessary vs. sufficient conditions in depth, with contrapositive, and how the LSAT tests them.')">
-      <span class="icon">⚙️</span> Necessary vs. Sufficient
-    </button>
-    <button class="q-btn" onclick="quickSend('Give me a structured 3-month LSAT study plan, week by week.')">
-      <span class="icon">📅</span> 3-Month Study Plan
-    </button>
-    <button class="q-btn" onclick="quickSend('Based on my performance this session, estimate my current score range and tell me what to prioritize.')">
-      <span class="icon">📊</span> Score Estimate
-    </button>
-    <button class="q-btn" onclick="quickSend('What are the most common mistakes LSAT students make and how do I avoid them?')">
-      <span class="icon">🚨</span> Common Mistakes
-    </button>
+    <button class="q-btn" onclick="qs('Explain necessary vs. sufficient conditions in depth, with contrapositive, and how the LSAT tests them.')"><span class="icon">⚙️</span> Necessary vs. Sufficient</button>
+    <button class="q-btn" onclick="qs('Give me a structured 3-month LSAT study plan, week by week.')"><span class="icon">📅</span> 3-Month Study Plan</button>
+    <button class="q-btn" onclick="qs('Based on my performance this session, estimate my current score range and tell me what to prioritize.')"><span class="icon">📊</span> Score Estimate</button>
+    <button class="q-btn" onclick="qs('What are the most common mistakes LSAT students make and how do I avoid them?')"><span class="icon">🚨</span> Common Mistakes</button>
   </div>
 
-  <div class="sb-foot">
-    <p>Powered by Claude · AI-generated questions<br/>Not affiliated with LSAC</p>
-  </div>
+  <div class="sb-foot"><p>Powered by Gemini · AI-generated questions<br/>Not affiliated with LSAC</p></div>
 </aside>
 
-<!-- ── Main area ─────────────────────────────────────────── -->
+<!-- ── Main ───────────────────────────────────────────── -->
 <div id="main">
   <div id="topbar">
-    <h2>LSAT Study Session</h2>
+    <button id="menu-btn" onclick="openSidebar()">☰</button>
+    <h2>LSAT Study Bot</h2>
     <span class="pill" id="diff-pill">Any Difficulty</span>
     <div id="section-tabs">
       <button class="tab active" onclick="switchTab(this,'All')">All</button>
-      <button class="tab" onclick="switchTab(this,'LR')">Logical Reasoning</button>
-      <button class="tab" onclick="switchTab(this,'AR')">Logic Games</button>
-      <button class="tab" onclick="switchTab(this,'RC')">Reading Comp</button>
+      <button class="tab" onclick="switchTab(this,'LR')">LR</button>
+      <button class="tab" onclick="switchTab(this,'AR')">Games</button>
+      <button class="tab" onclick="switchTab(this,'RC')">RC</button>
     </div>
   </div>
 
@@ -580,17 +358,17 @@
     <div id="welcome">
       <div class="logo">⚖️</div>
       <h2>Welcome to LSAT Study Bot</h2>
-      <p>I generate LSAT-style practice questions, explain every answer choice, teach strategy for each question type, and track your session accuracy. Use the sidebar for quick drills or just type what you need.</p>
+      <p>Practice questions, full logic games, RC passages, strategy guides, and detailed answer explanations — all in one place.</p>
       <div class="note">
-        <strong>Note:</strong> These are original AI-generated questions modeled on real LSAT style — not official LSAC questions. For official practice, use <strong>LSAC.org</strong> PrepTests (free with registration) and the Khan Academy LSAT course.
+        <strong>Note:</strong> AI-generated questions modeled on real LSAT style — not official LSAC questions. For official practice use <strong>LSAC.org</strong> PrepTests and Khan Academy LSAT.
       </div>
       <div class="chips">
-        <button class="chip" onclick="quickSend('Give me a Logical Reasoning practice question. Present only the question — wait for my answer.')">LR Practice Question</button>
-        <button class="chip" onclick="quickSend('Give me a complete Logic Game with setup, rules, diagram, and 5 questions.')">Full Logic Game</button>
-        <button class="chip" onclick="quickSend('Give me an LSAT-style RC passage with 5 questions.')">RC Passage</button>
-        <button class="chip" onclick="quickSend('Explain necessary vs. sufficient conditions with examples.')">Necessary vs. Sufficient</button>
-        <button class="chip" onclick="quickSend('Teach me the Assumption question type from scratch.')">Assumption Questions</button>
-        <button class="chip" onclick="quickSend('Give me a 3-month LSAT study plan.')">Study Plan</button>
+        <button class="chip" onclick="qs('Give me a Logical Reasoning practice question. Present only the question — wait for my answer.')">LR Practice Question</button>
+        <button class="chip" onclick="qs('Give me a complete Logic Game with setup, rules, diagram, and 5 questions.')">Full Logic Game</button>
+        <button class="chip" onclick="qs('Give me an LSAT-style RC passage with 5 questions.')">RC Passage</button>
+        <button class="chip" onclick="qs('Explain necessary vs. sufficient conditions with examples.')">Necessary vs. Sufficient</button>
+        <button class="chip" onclick="qs('Teach me the Assumption question type from scratch.')">Assumption Questions</button>
+        <button class="chip" onclick="qs('Give me a 3-month LSAT study plan.')">Study Plan</button>
       </div>
     </div>
   </div>
@@ -604,207 +382,167 @@
         onkeydown="handleKey(event)"
         oninput="autoResize(this)"
       ></textarea>
-      <button id="send-btn" onclick="sendMessage()" title="Send (Enter)">➤</button>
+      <button id="send-btn" onclick="sendMessage()">➤</button>
     </div>
-    <div id="hint">Press <strong>Enter</strong> to send · <strong>Shift+Enter</strong> for new line · Use sidebar to mark answers correct/wrong</div>
+    <div id="hint">Enter to send · Shift+Enter for new line · Mark answers correct/wrong in sidebar</div>
   </div>
 </div>
 
 <script>
   marked.setOptions({ breaks: true });
 
-  const chatWindow  = document.getElementById("chat-window");
-  const welcome     = document.getElementById("welcome");
-  const inputEl     = document.getElementById("user-input");
-  const sendBtn     = document.getElementById("send-btn");
-  const markRow     = document.getElementById("mark-row");
-  const diffPill    = document.getElementById("diff-pill");
-  const timerDisp   = document.getElementById("timer-display");
+  const chatWindow = document.getElementById("chat-window");
+  const welcome    = document.getElementById("welcome");
+  const inputEl    = document.getElementById("user-input");
+  const sendBtn    = document.getElementById("send-btn");
+  const markRow    = document.getElementById("mark-row");
+  const diffPill   = document.getElementById("diff-pill");
+  const timerDisp  = document.getElementById("timer-display");
 
-  let history     = [];
-  let currentDiff = "any";
-  let currentSect = "All";
-
-  // Stats
+  let history = [], currentDiff = "any", currentSect = "All";
   let total = 0, correct = 0;
 
+  // Sidebar (mobile)
+  function openSidebar() {
+    document.getElementById("sidebar").classList.add("open");
+    document.getElementById("sidebar-overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebar-overlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  // Stats
   function updateStats() {
     document.getElementById("stat-total").textContent   = total;
     document.getElementById("stat-correct").textContent = correct;
-    const pctEl = document.getElementById("stat-pct");
-    if (total === 0) { pctEl.textContent = "—"; pctEl.className = "stat-val"; }
-    else {
-      const pct = Math.round((correct / total) * 100);
-      pctEl.textContent = pct + "%";
-      pctEl.className = "stat-val " + (pct >= 60 ? "green" : "red");
-    }
+    const el = document.getElementById("stat-pct");
+    if (total === 0) { el.textContent = "—"; el.className = "stat-val"; return; }
+    const pct = Math.round((correct / total) * 100);
+    el.textContent = pct + "%";
+    el.className = "stat-val " + (pct >= 60 ? "green" : "red");
   }
 
   function markAnswer(isCorrect) {
-    total++;
-    if (isCorrect) correct++;
-    updateStats();
-    markRow.classList.remove("visible");
+    total++; if (isCorrect) correct++;
+    updateStats(); markRow.classList.remove("visible");
   }
 
   // Timer
   let timerInterval = null, timerSecs = 0, timerRunning = false;
-
   function toggleTimer() {
-    const btn = document.querySelector("#timer-row .timer-btn");
+    const btn = document.getElementById("timer-toggle-btn");
     if (timerRunning) {
-      clearInterval(timerInterval);
-      timerRunning = false;
-      btn.textContent = "Start";
+      clearInterval(timerInterval); timerRunning = false; btn.textContent = "Start";
     } else {
       timerInterval = setInterval(() => {
         timerSecs++;
-        const m = Math.floor(timerSecs / 60);
-        const s = String(timerSecs % 60).padStart(2, "0");
-        timerDisp.textContent = m + ":" + s;
+        timerDisp.textContent = Math.floor(timerSecs/60) + ":" + String(timerSecs%60).padStart(2,"0");
       }, 1000);
-      timerRunning = true;
-      btn.textContent = "Pause";
+      timerRunning = true; btn.textContent = "Pause";
     }
   }
-
   function resetTimer() {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    timerSecs = 0;
+    clearInterval(timerInterval); timerRunning = false; timerSecs = 0;
     timerDisp.textContent = "0:00";
-    document.querySelector("#timer-row .timer-btn").textContent = "Start";
+    document.getElementById("timer-toggle-btn").textContent = "Start";
   }
 
   // Difficulty
   function setDiff(btn, diff) {
     document.querySelectorAll(".diff-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentDiff = diff;
-    const labels = { any: "Any Difficulty", easy: "Easy (L1–2)", medium: "Medium (L3)", hard: "Hard (L4–5)" };
+    btn.classList.add("active"); currentDiff = diff;
+    const labels = { any:"Any Difficulty", easy:"Easy (L1–2)", medium:"Medium (L3)", hard:"Hard (L4–5)" };
     diffPill.textContent = labels[diff];
   }
 
   // Section tabs
   function switchTab(btn, section) {
     document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentSect = section;
+    btn.classList.add("active"); currentSect = section;
   }
 
   // Input
   function handleKey(e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
-
   function autoResize(el) {
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 140) + "px";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
   }
 
   // Messages
   function removeWelcome() {
     if (welcome.parentNode === chatWindow) chatWindow.removeChild(welcome);
   }
-
   function appendMessage(role, text) {
     removeWelcome();
-    const wrap   = document.createElement("div");
-    wrap.className = `message ${role}`;
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
+    const wrap = document.createElement("div"); wrap.className = `message ${role}`;
+    const avatar = document.createElement("div"); avatar.className = "avatar";
     avatar.textContent = role === "user" ? "👤" : "⚖️";
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
+    const bubble = document.createElement("div"); bubble.className = "bubble";
     if (role === "bot") bubble.innerHTML = marked.parse(text);
     else bubble.textContent = text;
-    wrap.appendChild(avatar);
-    wrap.appendChild(bubble);
-    chatWindow.appendChild(wrap);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    wrap.appendChild(avatar); wrap.appendChild(bubble);
+    chatWindow.appendChild(wrap); chatWindow.scrollTop = chatWindow.scrollHeight;
   }
-
   function showTyping() {
     removeWelcome();
-    const wrap = document.createElement("div");
-    wrap.className = "message bot";
-    wrap.id = "typing-indicator";
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    avatar.textContent = "⚖️";
-    const bubble = document.createElement("div");
-    bubble.className = "bubble typing";
+    const wrap = document.createElement("div"); wrap.className = "message bot"; wrap.id = "typing-indicator";
+    const avatar = document.createElement("div"); avatar.className = "avatar"; avatar.textContent = "⚖️";
+    const bubble = document.createElement("div"); bubble.className = "bubble typing";
     bubble.innerHTML = "<span></span><span></span><span></span>";
-    wrap.appendChild(avatar);
-    wrap.appendChild(bubble);
-    chatWindow.appendChild(wrap);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    wrap.appendChild(avatar); wrap.appendChild(bubble);
+    chatWindow.appendChild(wrap); chatWindow.scrollTop = chatWindow.scrollHeight;
   }
-
   function removeTyping() {
-    const el = document.getElementById("typing-indicator");
-    if (el) el.remove();
+    const el = document.getElementById("typing-indicator"); if (el) el.remove();
   }
 
-  // Build context injection for difficulty/section
-  function buildContextNote(userText) {
-    const diffMap = { any: "", easy: "at difficulty level 1–2 (easy)", medium: "at difficulty level 3 (medium)", hard: "at difficulty level 4–5 (hard)" };
-    const sectMap = { All: "", LR: "Logical Reasoning section", AR: "Analytical Reasoning (Logic Games) section", RC: "Reading Comprehension section" };
-    const diffNote = diffMap[currentDiff] || "";
-    const sectNote = sectMap[currentSect] || "";
-    if (!diffNote && !sectNote) return userText;
+  function buildContext(text) {
+    const d = { any:"", easy:"at difficulty level 1–2 (easy)", medium:"at difficulty level 3 (medium)", hard:"at difficulty level 4–5 (hard)" };
+    const s = { All:"", LR:"Logical Reasoning section", AR:"Analytical Reasoning (Logic Games) section", RC:"Reading Comprehension section" };
+    const dn = d[currentDiff], sn = s[currentSect];
+    if (!dn && !sn) return text;
     let note = "\n\n[Student context: ";
-    if (sectNote) note += `focusing on ${sectNote}`;
-    if (sectNote && diffNote) note += ", ";
-    if (diffNote) note += `requesting questions ${diffNote}`;
-    note += "]";
-    return userText + note;
+    if (sn) note += `focusing on ${sn}`;
+    if (sn && dn) note += ", ";
+    if (dn) note += `requesting questions ${dn}`;
+    return text + note + "]";
   }
 
-  async function sendMessage(overrideText) {
-    const raw = (overrideText || inputEl.value).trim();
+  async function sendMessage(override) {
+    const raw = (override || inputEl.value).trim();
     if (!raw) return;
+    inputEl.value = ""; inputEl.style.height = "auto";
+    sendBtn.disabled = true; markRow.classList.remove("visible");
+    if (window.innerWidth <= 700) closeSidebar();
 
-    inputEl.value = "";
-    inputEl.style.height = "auto";
-    sendBtn.disabled = true;
-    markRow.classList.remove("visible");
-
-    const displayText = overrideText || raw;
-    appendMessage("user", displayText);
-
-    const contextualText = buildContextNote(raw);
-    history.push({ role: "user", content: contextualText });
-
+    appendMessage("user", override || raw);
+    history.push({ role: "user", content: buildContext(raw) });
     showTyping();
 
     try {
-      const res  = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history }),
-      });
+      const res  = await fetch("/chat", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ messages: history }) });
       const data = await res.json();
       removeTyping();
-
       if (data.error) {
         appendMessage("bot", `**Error:** ${data.error}`);
       } else {
         appendMessage("bot", data.response);
         history.push({ role: "assistant", content: data.response });
-        // Show mark buttons after each bot response
         markRow.classList.add("visible");
       }
-    } catch (err) {
+    } catch {
       removeTyping();
-      appendMessage("bot", "**Connection error.** Make sure the server is running on port 5050.");
+      appendMessage("bot", "**Connection error.** Please try again.");
     }
-
-    sendBtn.disabled = false;
-    inputEl.focus();
+    sendBtn.disabled = false; inputEl.focus();
   }
 
-  function quickSend(text) { sendMessage(text); }
+  function qs(text) { sendMessage(text); }
 </script>
 </body>
 </html>
